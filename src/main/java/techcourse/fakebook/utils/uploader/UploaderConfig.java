@@ -4,8 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+
 @Configuration
-@PropertySource("classpath:upload.properties")
+@PropertySource(value = "classpath:upload.yml", factory = YamlPropertySourceFactory.class)
 @ConfigurationProperties(prefix = "upload")
 public class UploaderConfig {
     private String articlePath;
