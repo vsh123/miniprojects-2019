@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import techcourse.fakebook.exception.FileSaveException;
 import techcourse.fakebook.utils.uploader.Uploader;
+import techcourse.fakebook.utils.uploader.UploaderConfig;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,10 +20,12 @@ import java.util.Optional;
 public class S3Uploader implements Uploader {
     private static final Logger log = LoggerFactory.getLogger(S3Uploader.class);
 
+    private final UploaderConfig uploaderConfig;
     private final AmazonS3 amazonS3Client;
     private final String bucket;
 
-    public S3Uploader(AmazonS3 amazonS3Client, String bucket) {
+    public S3Uploader(UploaderConfig uploaderConfig, AmazonS3 amazonS3Client, String bucket) {
+        this.uploaderConfig = uploaderConfig;
         this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
     }
@@ -33,14 +36,34 @@ public class S3Uploader implements Uploader {
             File uploadFile = convert(multipartFile, fileName)
                     .orElseThrow(FileSaveException::new);
 
-            return upload(uploadFile, dirName, fileName);
+            return uploadToBucket(uploadFile, dirName, fileName);
         } catch (IOException e) {
             log.error("FileSaveError : file write 실패");
             throw new FileSaveException();
         }
     }
 
-    private String upload(File uploadFile, String dirName, String fileName) {
+    @Override
+    public String getArticlePath() {
+        return uploaderConfig.getArticlePath();
+    }
+
+    @Override
+    public String getUserProfilePath() {
+        return uploaderConfig.getUserProfilePath();
+    }
+
+    @Override
+    public String getUserProfileDefaultPath() {
+        return uploaderConfig.getUserProfileDefaultPath();
+    }
+
+    @Override
+    public String getUserProfileDefaultName() {
+        return uploaderConfig.getUserProfileDefaultName();
+    }
+
+    private String uploadToBucket(File uploadFile, String dirName, String fileName) {
         String savePath = dirName + fileName;
         String uploadImageUrl = putS3(uploadFile, savePath);
         removeNewFile(uploadFile);

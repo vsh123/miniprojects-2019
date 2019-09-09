@@ -15,8 +15,6 @@ import techcourse.fakebook.exception.NotImageTypeException;
 import techcourse.fakebook.service.attachment.assembler.AttachmentAssembler;
 import techcourse.fakebook.service.attachment.dto.AttachmentResponse;
 import techcourse.fakebook.utils.uploader.Uploader;
-import techcourse.fakebook.utils.uploader.UploaderConfig;
-import techcourse.fakebook.utils.uploader.s3.S3Uploader;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,14 +30,11 @@ public class AttachmentService {
     private final ArticleAttachmentRepository articleAttachmentRepository;
     private final AttachmentAssembler attachmentAssembler;
     private final Uploader uploader;
-    private final UploaderConfig uploaderConfig;
 
-    public AttachmentService(ArticleAttachmentRepository articleAttachmentRepository, AttachmentAssembler attachmentAssembler,
-                             S3Uploader uploader, UploaderConfig uploaderConfig) {
+    public AttachmentService(ArticleAttachmentRepository articleAttachmentRepository, AttachmentAssembler attachmentAssembler, Uploader uploader) {
         this.articleAttachmentRepository = articleAttachmentRepository;
         this.attachmentAssembler = attachmentAssembler;
         this.uploader = uploader;
-        this.uploaderConfig = uploaderConfig;
     }
 
     public AttachmentResponse saveAttachment(MultipartFile file, Article article) {
@@ -47,7 +42,7 @@ public class AttachmentService {
 
         checkImageType(file);
 
-        String filePath = uploader.upload(file, uploaderConfig.getArticlePath(), hashingName);
+        String filePath = uploader.upload(file, uploader.getArticlePath(), hashingName);
         ArticleAttachment articleAttachment = new ArticleAttachment(file.getOriginalFilename(), filePath, article);
 
         return getAttachmentResponse(articleAttachmentRepository.save(articleAttachment));
@@ -69,14 +64,14 @@ public class AttachmentService {
     }
 
     public UserProfileImage getDefaultProfileImage() {
-        return new UserProfileImage(uploaderConfig.getUserProfileDefaultName(), uploaderConfig.getUserProfileDefaultPath());
+        return new UserProfileImage(uploader.getUserProfileDefaultName(), uploader.getUserProfileDefaultPath());
     }
 
     public UserProfileImage saveProfileImage(MultipartFile file) {
         String hashingName = getHashedName(file.getOriginalFilename());
         checkImageType(file);
 
-        String filePath = uploader.upload(file, uploaderConfig.getUserProfilePath(), hashingName);
+        String filePath = uploader.upload(file, uploader.getUserProfilePath(), hashingName);
         return new UserProfileImage(file.getOriginalFilename(), filePath);
     }
 
