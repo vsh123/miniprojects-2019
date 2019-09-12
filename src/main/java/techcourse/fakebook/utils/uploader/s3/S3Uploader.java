@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import techcourse.fakebook.exception.FileDeleteException;
 import techcourse.fakebook.exception.FileSaveException;
 import techcourse.fakebook.utils.uploader.Uploader;
 import techcourse.fakebook.utils.uploader.UploaderConfig;
@@ -77,10 +78,8 @@ public class S3Uploader implements Uploader {
     }
 
     private void removeNewFile(File targetFile) {
-        if (targetFile.delete()) {
-            log.info("파일이 삭제되었습니다.");
-        } else {
-            log.info("파일이 삭제되지 못했습니다.");
+        if(!targetFile.delete()) {
+            throw new FileDeleteException();
         }
     }
 

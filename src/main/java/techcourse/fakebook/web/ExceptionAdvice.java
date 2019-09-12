@@ -35,7 +35,7 @@ public class ExceptionAdvice {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 
-    @ExceptionHandler({FileSaveException.class, NotImageTypeException.class})
+    @ExceptionHandler({FileSaveException.class, FileDeleteException.class, NotImageTypeException.class})
     public ResponseEntity<String> handleFileSaveException(RuntimeException e) {
         log.debug(e.getMessage());
 
