@@ -39,6 +39,7 @@ public class S3Uploader implements Uploader {
             return uploadToBucket(uploadFile, dirName, fileName);
         } catch (IOException e) {
             log.error("FileSaveError : file write 실패");
+            log.error(e.getMessage());
             throw new FileSaveException();
         }
     }
